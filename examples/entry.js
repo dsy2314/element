@@ -40,6 +40,8 @@ Vue.mixin({
 
 Vue.prototype.$icon = icon; // Icon 列表页用
 
+console.log(routes);
+
 const router = new VueRouter({
   mode: 'hash',
   base: __dirname,

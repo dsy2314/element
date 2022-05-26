@@ -33,6 +33,7 @@ export default {
   },
 
   methods: {
+    /** 重新设置列宽 **/
     onColumnsChange(layout) {
       const cols = this.$el.querySelectorAll('colgroup > col');
       if (!cols.length) return;
@@ -51,6 +52,7 @@ export default {
       }
     },
 
+    /** 重新设置宽度和是否显示 **/
     onScrollableChange(layout) {
       const cols = this.$el.querySelectorAll('colgroup > col[name=gutter]');
       for (let i = 0, j = cols.length; i < j; i++) {

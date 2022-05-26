@@ -13,7 +13,11 @@
       'el-table--enable-row-transition': (store.states.data || []).length !== 0 && (store.states.data || []).length < 100
     }, tableSize ? `el-table--${ tableSize }` : '']"
     @mouseleave="handleMouseLeave($event)">
-    <div class="hidden-columns" ref="hiddenColumns"><slot></slot></div>
+
+    <!-- hidden-columns 隐藏列 -->
+    <div class="hidden-columns" ref="hiddenColumns"><slot><!-- el-table-column 组件位置 --></slot></div>
+
+    <!-- header-wrapper 表头 -->
     <div
       v-if="showHeader"
       v-mousewheel="handleHeaderFooterMousewheel"
@@ -29,6 +33,8 @@
         }">
       </table-header>
     </div>
+
+    <!-- body-wrapper 表体 -->
     <div
       class="el-table__body-wrapper"
       ref="bodyWrapper"
@@ -61,6 +67,8 @@
         <slot name="append"></slot>
       </div>
     </div>
+
+    <!-- footer-wrapper 表尾合计列 -->
     <div
       v-if="showSummary"
       v-show="data && data.length > 0"
@@ -78,6 +86,8 @@
         }">
       </table-footer>
     </div>
+
+    <!-- fixed-wrapper 左侧固定列 -->
     <div
       v-if="fixedColumns.length > 0"
       v-mousewheel="handleFixedMousewheel"
@@ -139,6 +149,8 @@
           }"></table-footer>
       </div>
     </div>
+
+    <!-- fixed-right-wrapper 右侧固定列 -->
     <div
       v-if="rightFixedColumns.length > 0"
       v-mousewheel="handleFixedMousewheel"
@@ -200,6 +212,8 @@
           }"></table-footer>
       </div>
     </div>
+
+    <!-- right-fixed-path 右侧固定列补丁-->
     <div
       v-if="rightFixedColumns.length > 0"
       class="el-table__fixed-right-patch"
@@ -208,17 +222,23 @@
         width: layout.scrollY ? layout.gutterWidth + 'px' : '0',
         height: layout.headerHeight + 'px'
       }"></div>
+
+    <!-- resize-proxy 列宽调整代理 -->
     <div class="el-table__column-resize-proxy" ref="resizeProxy" v-show="resizeProxyVisible"></div>
   </div>
 </template>
 
 <script type="text/babel">
   import ElCheckbox from 'element-ui/packages/checkbox';
+  // 防抖节流
   import { debounce, throttle } from 'throttle-debounce';
+  // 添加或移除调整尺寸事件
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   import Mousewheel from 'element-ui/src/directives/mousewheel';
+  // 多语言支持
   import Locale from 'element-ui/src/mixins/locale';
   import Migrating from 'element-ui/src/mixins/migrating';
+  // 表格状态管理组件
   import { createStore, mapStates } from './store/helper';
   import TableLayout from './table-layout';
   import TableBody from './table-body';
@@ -466,6 +486,7 @@
         }
       },
 
+      /** 设置表格宽高 **/
       doLayout() {
         if (this.shouldUpdateHeight) {
           this.layout.updateElsHeight();
@@ -586,6 +607,7 @@
     },
 
     watch: {
+      // 设置表格高度
       height: {
         immediate: true,
         handler(value) {
@@ -593,6 +615,7 @@
         }
       },
 
+      // 设置表格最大高度
       maxHeight: {
         immediate: true,
         handler(value) {
@@ -600,6 +623,7 @@
         }
       },
 
+      // 设置当前 rowKey
       currentRowKey: {
         immediate: true,
         handler(value) {
@@ -608,6 +632,7 @@
         }
       },
 
+      // 设置表体数据
       data: {
         immediate: true,
         handler(value) {
@@ -615,6 +640,7 @@
         }
       },
 
+      // 设置表格展开列
       expandRowKeys: {
         immediate: true,
         handler(newVal) {
@@ -626,11 +652,13 @@
     },
 
     created() {
+      console.log('%c=> table created', 'color: #f08080;');
       this.tableId = 'el-table_' + tableIdSeed++;
       this.debouncedUpdateLayout = debounce(50, () => this.doLayout());
     },
 
     mounted() {
+      console.log('%c=> table mounted', 'color: #f08080;');
       this.bindEvents();
       this.store.updateColumns();
       this.doLayout();
@@ -659,7 +687,9 @@
     },
 
     data() {
+      // 渲染嵌套数据的配置选项
       const { hasChildren = 'hasChildren', children = 'children' } = this.treeProps;
+      // 初始化 store
       this.store = createStore(this, {
         rowKey: this.rowKey,
         defaultExpandAll: this.defaultExpandAll,
@@ -670,12 +700,15 @@
         lazyColumnIdentifier: hasChildren,
         childrenColumnName: children
       });
+      console.log('%c=> store', 'color: #f08080;', this.store);
+      // 初始化 layout
       const layout = new TableLayout({
         store: this.store,
         table: this,
         fit: this.fit,
         showHeader: this.showHeader
       });
+      console.log('%c=> layout', 'color: #f08080;', layout);
       return {
         layout,
         isHidden: false,

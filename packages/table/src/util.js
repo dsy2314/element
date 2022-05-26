@@ -133,6 +133,9 @@ function hasOwn(obj, key) {
   return Object.prototype.hasOwnProperty.call(obj, key);
 }
 
+/**
+ * 返回一个新对象，合并 defaults 和 config 对象的属性， config 会覆盖 defaults 中的属性
+ */
 export function mergeOptions(defaults, config) {
   const options = {};
   let key;
@@ -186,12 +189,16 @@ export function parseHeight(height) {
 
 // https://github.com/reduxjs/redux/blob/master/src/compose.js
 export function compose(...funcs) {
+  // 返回原参数
   if (funcs.length === 0) {
     return arg => arg;
   }
+  // 返回原函数
   if (funcs.length === 1) {
     return funcs[0];
   }
+
+  // 返回一个函数队列，从右向左执行，每次函数返回值作为参数传入到下一个执行函数中
   return funcs.reduce((a, b) => (...args) => a(b(...args)));
 }
 

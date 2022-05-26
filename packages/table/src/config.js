@@ -1,5 +1,6 @@
 import { getPropByPath } from 'element-ui/src/utils/util';
 
+// 单元格类型
 export const cellStarts = {
   default: {
     order: ''

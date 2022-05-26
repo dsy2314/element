@@ -67,6 +67,7 @@ export default {
   },
 
   computed: {
+    /** 上级 table 组件 **/
     owner() {
       let parent = this.$parent;
       while (parent && !parent.tableId) {
@@ -75,6 +76,7 @@ export default {
       return parent;
     },
 
+    /** 上级 table 或 table-column 组件 **/
     columnOrTableParent() {
       let parent = this.$parent;
       while (parent && !parent.tableId && !parent.columnId) {
@@ -283,6 +285,7 @@ export default {
     const selectProps = ['selectable', 'reserveSelection'];
     const filterProps = ['filterMethod', 'filters', 'filterMultiple', 'filterOpened', 'filteredValue', 'filterPlacement'];
 
+    // 过滤出这些属性组成的对象
     let column = this.getPropsData(basicProps, sortProps, selectProps, filterProps);
     column = mergeOptions(defaults, column);
 
@@ -303,6 +306,7 @@ export default {
     const children = this.isSubColumn ? parent.$el.children : parent.$refs.hiddenColumns.children;
     const columnIndex = this.getColumnElIndex(children, this.$el);
 
+    // 插入列到 store 供 table 渲染
     owner.store.commit('insertColumn', this.columnConfig, columnIndex, this.isSubColumn ? parent.columnConfig : null);
   },
 

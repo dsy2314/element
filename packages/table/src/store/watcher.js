@@ -13,10 +13,12 @@ const sortData = (data, states) => {
   return orderBy(data, states.sortProp, states.sortOrder, sortingColumn.sortMethod, sortingColumn.sortBy);
 };
 
+/** 获取铺平后的树形数据 **/
 const doFlattenColumns = (columns) => {
   const result = [];
   columns.forEach((column) => {
     if (column.children) {
+      // 和 result.push(doFlattenColumns(column.children)) 有啥区别？
       result.push.apply(result, doFlattenColumns(column.children));
     } else {
       result.push(column);
@@ -88,14 +90,17 @@ export default Vue.extend({
       states.fixedColumns = _columns.filter((column) => column.fixed === true || column.fixed === 'left');
       states.rightFixedColumns = _columns.filter((column) => column.fixed === 'right');
 
+      // 如果存在左固定列且数据列第一列为 selection 列且该列不是左固定列，则将该列改为左固定列；
       if (states.fixedColumns.length > 0 && _columns[0] && _columns[0].type === 'selection' && !_columns[0].fixed) {
         _columns[0].fixed = true;
         states.fixedColumns.unshift(_columns[0]);
       }
 
       const notFixedColumns = _columns.filter(column => !column.fixed);
+      // fixed 不等于 left 或 right 的列不会保存到 originColumns
       states.originColumns = [].concat(states.fixedColumns).concat(notFixedColumns).concat(states.rightFixedColumns);
 
+      // 多级表头列铺平处理
       const leafColumns = doFlattenColumns(notFixedColumns);
       const fixedLeafColumns = doFlattenColumns(states.fixedColumns);
       const rightFixedLeafColumns = doFlattenColumns(states.rightFixedColumns);
@@ -104,6 +109,7 @@ export default Vue.extend({
       states.fixedLeafColumnsLength = fixedLeafColumns.length;
       states.rightFixedLeafColumnsLength = rightFixedLeafColumns.length;
 
+      // 铺平后的列
       states.columns = [].concat(fixedLeafColumns).concat(leafColumns).concat(rightFixedLeafColumns);
       states.isComplex = states.fixedColumns.length > 0 || states.rightFixedColumns.length > 0;
     },

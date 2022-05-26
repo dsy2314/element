@@ -100,7 +100,11 @@ class TableLayout {
     const headerTrElm = headerWrapper ? headerWrapper.querySelector('.el-table__header tr') : null;
     const noneHeader = this.headerDisplayNone(headerTrElm);
 
+    // clientHeight = height + padding - 横向滚动轴高度。
+    // offsetHeight = height + padding + border + 横向滚动轴高度。
+    // scrollHeight = 纵向滚动条拉直，不再滚动的高度。
     const headerHeight = this.headerHeight = !this.showHeader ? 0 : headerWrapper.offsetHeight;
+    // (this.table.columns || []).length > 0 这种写法可以避免非数组时出现错误
     if (this.showHeader && !noneHeader && headerWrapper.offsetWidth > 0 && (this.table.columns || []).length > 0 && headerHeight < 2) {
       return Vue.nextTick(() => this.updateElsHeight());
     }
@@ -117,10 +121,12 @@ class TableLayout {
     this.notifyObservers('scrollable');
   }
 
+  /** 查找元素及其上级元素（直到 div 元素）是否有 display: none 属性；如果有，返回 true，否则返回 false **/
   headerDisplayNone(elm) {
     if (!elm) return true;
     let headerChild = elm;
     while (headerChild.tagName !== 'DIV') {
+      // getComputedStyle 获取元素的样式声明对象(键名驼峰式)
       if (getComputedStyle(headerChild).display === 'none') {
         return true;
       }
@@ -129,6 +135,7 @@ class TableLayout {
     return false;
   }
 
+  /** 设置列宽 **/
   updateColumnsWidth() {
     if (Vue.prototype.$isServer) return;
     const fit = this.fit;
@@ -136,6 +143,7 @@ class TableLayout {
     let bodyMinWidth = 0;
 
     const flattenColumns = this.getFlattenColumns();
+    // 宽度自适应的列
     let flexColumns = flattenColumns.filter((column) => typeof column.width !== 'number');
 
     flattenColumns.forEach((column) => { // Clean those columns whose width changed from flex to unflex
@@ -144,6 +152,7 @@ class TableLayout {
 
     if (flexColumns.length > 0 && fit) {
       flattenColumns.forEach((column) => {
+        // 设置 fit 且没指定列宽的列，每列最小宽度为 80
         bodyMinWidth += column.width || column.minWidth || 80;
       });
 
@@ -152,6 +161,7 @@ class TableLayout {
       if (bodyMinWidth <= bodyWidth - scrollYWidth) { // DON'T HAVE SCROLL BAR
         this.scrollX = false;
 
+        // 可分配的宽度 = 表格宽度 - 纵向滚动条宽度 - 表格最小宽度
         const totalFlexWidth = bodyWidth - scrollYWidth - bodyMinWidth;
 
         if (flexColumns.length === 1) {
@@ -159,6 +169,7 @@ class TableLayout {
         } else {
           const allColumnsWidth = flexColumns.reduce((prev, column) => prev + (column.minWidth || 80), 0);
           const flexWidthPerPixel = totalFlexWidth / allColumnsWidth;
+          // 宽度取整存在误差，自适应列非第一项分配宽度后，第一项分配剩余的宽度
           let noneFirstWidth = 0;
 
           flexColumns.forEach((column, index) => {
