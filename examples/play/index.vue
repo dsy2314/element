@@ -4,8 +4,8 @@
       :data="tableData"
       size=""
       width=""
-      height="500"
-      max-height="500"
+      height="300"
+      max-height="300"
       :fit="true"
       :stripe="false"
       :border="true"
@@ -19,8 +19,8 @@
       :row-style="() => ''"
       cell-class-name=""
       :cell-style="() => ''"
-      header-row-class-name=""
-      :header-row-style="() => ''"
+      :header-row-class-name="headerRowClassName"
+      :header-row-style="headerRowStyle"
       header-cell-class-name=""
       :header-cell-style="() => ''"
       :highlight-current-row="false"
@@ -76,6 +76,11 @@
         prop="address"
         label="地址">
       </el-table-column>
+      <el-table-column label="哈哈">
+        <template slot-scope="scope">
+          <span>{{getValue(scope)}}</span>
+        </template>
+      </el-table-column>
     </el-table>
   </div>
 </template>
@@ -106,6 +111,22 @@
           address: '上海市普陀区金沙江路 1516 弄'
         }]
       };
+    },
+    methods: {
+      getValue(data) {
+        // console.log(data);
+        return "hello"
+      },
+
+      headerRowStyle({rowIndex}) {
+        console.log({rowIndex});
+        return "haha";
+      },
+
+      headerRowClassName({rowIndex}){
+        console.log({rowIndex});
+        return "emm";
+      }
     }
   };
 </script>

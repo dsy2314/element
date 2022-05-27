@@ -24,6 +24,7 @@ class TableLayout {
     this.viewportHeight = null; // Table Height - Scroll Bar Height
     this.bodyHeight = null; // Table Height - Table Header Height
     this.fixedBodyHeight = null; // Table Height - Table Header Height - Scroll Bar Height
+    // 滚动条宽度
     this.gutterWidth = scrollbarWidth();
 
     for (let name in options) {

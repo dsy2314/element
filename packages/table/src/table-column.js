@@ -318,6 +318,7 @@ export default {
 
   render(h) {
     // slots 也要渲染，需要计算合并表头
+    console.log('%c=> table-column-slot', 'color: #f08080;', this.$slots);
     return h('div', this.$slots.default);
   }
 };

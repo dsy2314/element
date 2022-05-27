@@ -18,7 +18,6 @@ const doFlattenColumns = (columns) => {
   const result = [];
   columns.forEach((column) => {
     if (column.children) {
-      // 和 result.push(doFlattenColumns(column.children)) 有啥区别？
       result.push.apply(result, doFlattenColumns(column.children));
     } else {
       result.push(column);
@@ -42,12 +41,19 @@ export default Vue.extend({
 
         // 列
         _columns: [], // 不可响应的
+        // 原始列（_columns 过滤得到，fixed 存在且不等于 left 或 right 的将过滤掉）
         originColumns: [],
+        // 铺平后的列（铺平的左侧固定列，铺平的右侧固定列，铺平的非固定列的合并）
         columns: [],
+        // 左侧固定列（_columns 过滤得到）
         fixedColumns: [],
+        // 右侧固定列（_columns 过滤得到）
         rightFixedColumns: [],
+        //
         leafColumns: [],
+        // 铺平的左侧固定列
         fixedLeafColumns: [],
+        // 铺平的右侧固定列
         rightFixedLeafColumns: [],
         leafColumnsLength: 0,
         fixedLeafColumnsLength: 0,

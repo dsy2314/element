@@ -5,6 +5,7 @@ import FilterPanel from './filter-panel.vue';
 import LayoutObserver from './layout-observer';
 import { mapStates } from './store/helper';
 
+/** 树型列数据转换为平铺数据 **/
 const getAllColumns = (columns) => {
   const result = [];
   columns.forEach((column) => {
@@ -18,6 +19,7 @@ const getAllColumns = (columns) => {
   return result;
 };
 
+/** 树型表头数据转换成行数据 **/
 const convertToRows = (originColumns) => {
   let maxLevel = 1;
   const traverse = (column, parent) => {
@@ -69,11 +71,21 @@ export default {
   mixins: [LayoutObserver],
 
   render(h) {
+    // 树型表头数据
     const originColumns = this.store.states.originColumns;
+    // 表头数据（按行分）
     const columnRows = convertToRows(originColumns, this.columns);
     // 是否拥有多级表头
     const isGroup = columnRows.length > 1;
     if (isGroup) this.$parent.isGroup = true;
+
+    console.log('%c=> ', 'color: #f08080;', { columnRows });
+    /**
+     * Vue render 函数中的方法
+     * this._l(list, (item, index) => render)
+     * 相当于
+     * list.map((item, index) => render)
+     */
     return (
       <table
         class="el-table__header"
@@ -90,55 +102,60 @@ export default {
         </colgroup>
         <thead class={ [{ 'is-group': isGroup, 'has-gutter': this.hasGutter }] }>
           {
-            this._l(columnRows, (columns, rowIndex) =>
-              <tr
-                style={ this.getHeaderRowStyle(rowIndex) }
-                class={ this.getHeaderRowClass(rowIndex) }
-              >
-                {
-                  columns.map((column, cellIndex) => (<th
-                    colspan={ column.colSpan }
-                    rowspan={ column.rowSpan }
-                    on-mousemove={ ($event) => this.handleMouseMove($event, column) }
-                    on-mouseout={ this.handleMouseOut }
-                    on-mousedown={ ($event) => this.handleMouseDown($event, column) }
-                    on-click={ ($event) => this.handleHeaderClick($event, column) }
-                    on-contextmenu={ ($event) => this.handleHeaderContextMenu($event, column) }
-                    style={ this.getHeaderCellStyle(rowIndex, cellIndex, columns, column) }
-                    class={ this.getHeaderCellClass(rowIndex, cellIndex, columns, column) }
-                    key={ column.id }>
-                    <div class={ ['cell', column.filteredValue && column.filteredValue.length > 0 ? 'highlight' : '', column.labelClassName] }>
-                      {
-                        column.renderHeader
-                          ? column.renderHeader.call(this._renderProxy, h, { column, $index: cellIndex, store: this.store, _self: this.$parent.$vnode.context })
-                          : column.label
-                      }
-                      {
-                        column.sortable ? (<span
-                          class="caret-wrapper"
-                          on-click={ ($event) => this.handleSortClick($event, column) }>
-                          <i class="sort-caret ascending"
-                            on-click={ ($event) => this.handleSortClick($event, column, 'ascending') }>
-                          </i>
-                          <i class="sort-caret descending"
-                            on-click={ ($event) => this.handleSortClick($event, column, 'descending') }>
-                          </i>
-                        </span>) : ''
-                      }
-                      {
-                        column.filterable ? (<span
-                          class="el-table__column-filter-trigger"
-                          on-click={ ($event) => this.handleFilterClick($event, column) }>
-                          <i class={ ['el-icon-arrow-down', column.filterOpened ? 'el-icon-arrow-up' : ''] }></i>
-                        </span>) : ''
-                      }
-                    </div>
-                  </th>))
-                }
-                {
-                  this.hasGutter ? <th class="el-table__cell gutter"></th> : ''
-                }
-              </tr>
+            this._l(columnRows, (columns, rowIndex) => <tr
+              style={this.getHeaderRowStyle(rowIndex)}
+              className={this.getHeaderRowClass(rowIndex)}
+            >
+              {
+                columns.map((column, cellIndex) => (<th
+                  colSpan={column.colSpan}
+                  rowSpan={column.rowSpan}
+                  on-mousemove={($event) => this.handleMouseMove($event, column)}
+                  on-mouseout={this.handleMouseOut}
+                  on-mousedown={($event) => this.handleMouseDown($event, column)}
+                  on-click={($event) => this.handleHeaderClick($event, column)}
+                  on-contextmenu={($event) => this.handleHeaderContextMenu($event, column)}
+                  style={this.getHeaderCellStyle(rowIndex, cellIndex, columns, column)}
+                  className={this.getHeaderCellClass(rowIndex, cellIndex, columns, column)}
+                  key={column.id}>
+                  <div
+                    className={['cell', column.filteredValue && column.filteredValue.length > 0 ? 'highlight' : '', column.labelClassName]}>
+                    {
+                      column.renderHeader
+                        ? column.renderHeader.call(this._renderProxy, h, {
+                          column,
+                          $index: cellIndex,
+                          store: this.store,
+                          _self: this.$parent.$vnode.context
+                        })
+                        : column.label
+                    }
+                    {
+                      column.sortable ? (<span
+                        className="caret-wrapper"
+                        on-click={($event) => this.handleSortClick($event, column)}>
+                        <i className="sort-caret ascending"
+                          on-click={($event) => this.handleSortClick($event, column, 'ascending')}>
+                        </i>
+                        <i className="sort-caret descending"
+                          on-click={($event) => this.handleSortClick($event, column, 'descending')}>
+                        </i>
+                      </span>) : ''
+                    }
+                    {
+                      column.filterable ? (<span
+                        className="el-table__column-filter-trigger"
+                        on-click={($event) => this.handleFilterClick($event, column)}>
+                        <i className={['el-icon-arrow-down', column.filterOpened ? 'el-icon-arrow-up' : '']}></i>
+                      </span>) : ''
+                    }
+                  </div>
+                </th>))
+              }
+              {
+                this.hasGutter ? <th className="el-table__cell gutter"></th> : ''
+              }
+            </tr>
             )
           }
         </thead>
@@ -225,6 +242,7 @@ export default {
       }
     },
 
+    // TODO row 参数与 api 文档不一致
     getHeaderRowStyle(rowIndex) {
       const headerRowStyle = this.table.headerRowStyle;
       if (typeof headerRowStyle === 'function') {
@@ -233,6 +251,7 @@ export default {
       return headerRowStyle;
     },
 
+    /** 支持传多个 className **/
     getHeaderRowClass(rowIndex) {
       const classes = [];
 

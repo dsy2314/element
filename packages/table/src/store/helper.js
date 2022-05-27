@@ -17,6 +17,7 @@ export function createStore(table, initialState = {}) {
   return store;
 }
 
+/** 类似 Vuex mapGetter **/
 export function mapStates(mapper) {
   const res = {};
   Object.keys(mapper).forEach(key => {
